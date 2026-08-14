@@ -1,0 +1,31 @@
+{
+  "name": "tranquil-debug",
+  "main": "./lib/tranquil-debug",
+  "version": "0.1.0",
+  "description": "Breakpoint and step debugging for TypeScript automations, over Deno's V8 inspector",
+  "keywords": [],
+  "repository": "https://github.com/tranquillabs/tranquil-debug",
+  "author": {
+    "name": "Tranquil Labs",
+    "url": "https://github.com/tranquillabs"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "deserializers": {
+    "TranquilDebugView": "deserializeDebugPanel"
+  },
+  "consumedServices": {
+    "pane-controls": {
+      "versions": {
+        "1.0.0": "consumePaneControls"
+      }
+    },
+    "automation-runner": {
+      "versions": {
+        "1.0.0": "consumeAutomationRunner"
+      }
+    }
+  }
+}

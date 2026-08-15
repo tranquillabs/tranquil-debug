@@ -1,0 +1,70 @@
+// The execution pointer. Kept separate from the breakpoint dot (see breakpoints.less) so that a
+// stop on a line WITHOUT a breakpoint still reads correctly, and a stop ON one composes: the
+// breakpoint gutter shows the arrow over the dot while the line itself is highlighted.
+//
+// Deliberately loud. When execution stops, the paused line is the single most important thing on
+// screen and the eye has to find it instantly.
+//
+// SPECIFICITY, not !important: the paused line is almost always the cursor line too, and the
+// theme's `.line.cursor-line` rule has the same specificity as a plain `.line.<our-class>` while
+// loading later (themes apply after package styles), so it wins the background and leaves only the
+// edge bar visible. Repeating the class raises specificity by one class without escalating to
+// !important, which the theme guidance in this project rules out.
+
+@import "ui-variables";
+
+// VS Code's stack-frame yellow, which reads as "stopped here" rather than as a selection.
+@tq-stopped: #ffcc00;
+
+atom-text-editor {
+  .line.tranquil-debug-current-line.tranquil-debug-current-line {
+    background-color: fade(@tq-stopped, 20%);
+    // A solid left edge that survives any syntax theme, since a wash alone can be lost against
+    // busy highlighting.
+    box-shadow: inset 4px 0 0 @tq-stopped;
+  }
+
+  // The line number itself, in the real line-number gutter — not the breakpoint column.
+  .gutter .line-number.tranquil-debug-current-line.tranquil-debug-current-line {
+    background-color: fade(@tq-stopped, 28%);
+    color: @tq-stopped;
+    font-weight: bold;
+  }
+
+  // The stack-frame arrow in the breakpoint column, VS Code's clearest "you are here" signal.
+  // It is a separate decoration from the breakpoint dot, so when both land on one line the arrow
+  // simply draws over the dot — which is what VS Code does too.
+  .gutter[gutter-name="tranquil-breakpoints"] .decoration.tranquil-debug-stack-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: 0.55em solid @tq-stopped;
+      border-top: 0.38em solid transparent;
+      border-bottom: 0.38em solid transparent;
+    }
+  }
+}
+
+// Light themes: this yellow on a light ground is weak, so darken it and lean on the bar.
+atom-text-editor[data-theme="light"],
+.theme-tranquil-business-light atom-text-editor {
+  .line.tranquil-debug-current-line.tranquil-debug-current-line {
+    background-color: fade(darken(@tq-stopped, 12%), 24%);
+    box-shadow: inset 4px 0 0 darken(@tq-stopped, 18%);
+  }
+
+  .gutter .line-number.tranquil-debug-current-line.tranquil-debug-current-line {
+    color: darken(@tq-stopped, 30%);
+    background-color: fade(darken(@tq-stopped, 12%), 28%);
+  }
+
+  .gutter[gutter-name="tranquil-breakpoints"] .decoration.tranquil-debug-stack-arrow::before {
+    border-left-color: darken(@tq-stopped, 20%);
+  }
+}

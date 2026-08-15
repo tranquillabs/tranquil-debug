@@ -1,0 +1,67 @@
+// The breakpoint column: a narrow decorated gutter left of the line numbers.
+//
+// A decorated gutter renders each decoration as an absolutely-positioned `.decoration` div, already
+// sized to one line's height and offset to the right row:
+//
+//   <div class="gutter" gutter-name="tranquil-breakpoints">
+//     <div class="custom-decorations" style="height: 1470px">
+//       <div class="decoration tranquil-bp state-verified" style="top: 210px; height: 21px"></div>
+//
+// So the dot is centred inside that box — no per-row elements to style, and none of the
+// zero-height trouble a custom line-number gutter brings.
+//
+// Dots are drawn in CSS rather than with codicon glyphs: a font glyph would mean hard-coding
+// codicon private-use codepoints, which break silently when the icon font is updated.
+//
+// State colours follow VS Code: verified red, unverified/disabled grey. Unverified and disabled
+// share a colour and are told apart by SHAPE (hollow vs filled), so the grey is not ambiguous.
+
+@tq-bp-color: #e51400;
+@tq-bp-muted: #848484;
+
+// Selected by the gutter-name ATTRIBUTE, not by a class. A decorated gutter drops the `class:`
+// option entirely — core renders it as a bare <div class="gutter" gutter-name="...">, verified
+// against the live editor. Selecting on the class silently matches nothing.
+atom-text-editor .gutter[gutter-name="tranquil-breakpoints"] {
+  width: 1.3em;
+  min-width: 1.3em;
+  cursor: pointer;
+
+  .decoration.tranquil-bp {
+    // The decoration div spans the full line height; centre a dot inside it.
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 0.7em;
+      height: 0.7em;
+      border-radius: 50%;
+      box-sizing: border-box;
+    }
+  }
+
+  // Set, and either unconfirmed by any session or confirmed bound: solid red.
+  .decoration.tranquil-bp.state-verified::before {
+    background-color: @tq-bp-color;
+  }
+
+  // A session looked at this breakpoint and could not bind it — "unbound". Hollow, so it reads as
+  // different in kind from disabled rather than merely dimmer.
+  .decoration.tranquil-bp.state-unverified::before {
+    background-color: transparent;
+    border: 1px solid @tq-bp-muted;
+  }
+
+  .decoration.tranquil-bp.state-disabled::before {
+    background-color: @tq-bp-muted;
+  }
+
+  // Hover affordance on an empty row.
+  .decoration.tranquil-bp.tranquil-bp-hint::before {
+    background-color: fade(@tq-bp-color, 30%);
+  }
+}

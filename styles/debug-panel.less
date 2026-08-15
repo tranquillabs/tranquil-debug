@@ -1,0 +1,274 @@
+// The debug pane. Follows the automation runs panel's conventions: ui-variables for colour,
+// flex column, monospace for anything that shows a value.
+
+@import "ui-variables";
+
+.tranquil-debug-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: @tool-panel-background-color;
+  color: @text-color;
+  font-size: 0.9em;
+
+  .debug-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-bottom: 1px solid @base-border-color;
+    flex: none;
+  }
+
+  .debug-state-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: @text-color-subtle;
+
+    &.state-running {
+      background: @text-color-info;
+    }
+    // Hollow while paused, so "waiting for you" is distinguishable at a glance from "working".
+    &.state-stopped {
+      background: transparent;
+      box-shadow: inset 0 0 0 2px @text-color-info;
+    }
+    &.state-initializing {
+      background: @text-color-warning;
+    }
+  }
+
+  .debug-state-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .debug-section {
+    display: flex;
+    flex-direction: column;
+    // min-height:0 is what lets a flex child actually shrink — without it the body grows to fit
+    // its content and the scrollbar never appears. The `flex` value itself is set inline by
+    // applyHeights(), since the dividers own it.
+    min-height: 0;
+    overflow: hidden;
+    // The drag handle above is invisible until hovered, so this border is what actually separates
+    // one section from the next.
+    border-bottom: 1px solid @base-border-color;
+
+    &.collapsed {
+
+      .debug-section-body {
+        display: none;
+      }
+      .debug-section-header::before {
+        transform: rotate(-90deg);
+      }
+    }
+  }
+
+  // Drag handle between sections. Draws no line of its own — the section header below it already
+  // reads as a boundary — and reveals a faint highlight on hover, like the runs panel's divider.
+  .debug-divider {
+    flex: 0 0 auto;
+    height: 7px;
+    margin: -3px 0 -3px; // straddles the boundary; net 0 layout
+    position: relative;
+    z-index: 2;
+    cursor: row-resize;
+    background: transparent;
+
+    &:hover {
+      background: fade(@text-color-info, 22%);
+    }
+  }
+
+  .debug-section-header {
+    flex: none;
+    padding: 4px 8px;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: @text-color-subtle;
+    cursor: default;
+    user-select: none;
+
+    &::before {
+      content: "▾";
+      display: inline-block;
+      width: 1em;
+      transition: transform 0.1s ease;
+    }
+  }
+
+  .debug-section-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding-bottom: 4px;
+  }
+
+  // The console body is a column: transcript scrolls, prompt stays put at the bottom.
+  .debug-section[data-section="console"] .debug-section-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .debug-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 1px 8px;
+    font-family: var(--editor-font-family, monospace);
+    white-space: nowrap;
+
+    &.expandable,
+    &.debug-frame {
+      cursor: default;
+    }
+    &:hover {
+      background: fade(@text-color, 6%);
+    }
+    &.selected {
+      background: @background-color-selected;
+    }
+  }
+
+  .debug-twisty {
+    flex: none;
+    width: 1em;
+    color: @text-color-subtle;
+  }
+
+  .debug-name {
+    flex: none;
+    color: @text-color-highlight;
+  }
+
+  .debug-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: @text-color-subtle;
+
+    // The three primitive classes are the whole "value type" story, as in VS Code.
+    &.value-number {
+      color: @text-color-info;
+    }
+    &.value-boolean {
+      color: @text-color-warning;
+    }
+    &.value-string {
+      color: @text-color-success;
+    }
+    &.value-null {
+      font-style: italic;
+    }
+  }
+
+  .debug-empty,
+  .debug-loading {
+    padding: 6px 8px;
+    color: @text-color-subtle;
+    font-style: italic;
+  }
+
+  .debug-error {
+    padding: 1px 8px;
+    color: @text-color-error;
+    font-family: var(--editor-font-family, monospace);
+  }
+
+  .debug-watch-add,
+  .debug-console-input {
+    padding: 2px 8px;
+  }
+
+  .debug-watch-input,
+  .debug-console-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: @input-background-color;
+    color: @text-color;
+    border: 1px solid @base-border-color;
+    border-radius: @component-border-radius;
+    padding: 2px 6px;
+    font-family: var(--editor-font-family, monospace);
+
+    &:focus {
+      outline: none;
+      border-color: @text-color-info;
+    }
+  }
+
+  .debug-watch-remove {
+    margin-left: auto;
+    color: @text-color-subtle;
+    cursor: default;
+
+    &:hover {
+      color: @text-color-error;
+    }
+  }
+
+  .debug-console-output {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 2px 8px;
+    font-family: var(--editor-font-family, monospace);
+    white-space: pre-wrap;
+
+    .kind-input {
+      color: @text-color-subtle;
+    }
+    .kind-error {
+      color: @text-color-error;
+    }
+  }
+}
+
+// A watch expression that threw — the message replaces the value in place.
+.tranquil-debug-panel .debug-value.value-error {
+  color: @text-color-error;
+}
+
+// While dragging a section divider, keep the resize cursor everywhere and suppress selection
+// (the pointer leaves the 7px strip during a fast drag).
+body.tranquil-debug-resizing {
+  cursor: row-resize;
+  user-select: none;
+}
+
+// Text in the panel must be selectable so it can be copied (see handleCopyKey). Rows toggle on
+// `click` rather than `mousedown` for the same reason — a mousedown handler that preventDefault()s
+// stops a selection from ever starting. Section headers stay unselectable: they are controls.
+.tranquil-debug-panel {
+  .debug-section-body,
+  .debug-console-output,
+  .debug-row {
+    user-select: text;
+  }
+
+  // The console transcript is prose, so an I-beam is right there. Tree and stack rows keep the
+  // pointer affordance — they are clickable, and the cursor is cosmetic: selection works either way.
+  .debug-console-output {
+    cursor: text;
+  }
+
+  .debug-twisty,
+  .debug-watch-remove {
+    cursor: default;
+    user-select: none;
+  }
+}
+
+// V8 internal properties ([[PromiseState]], [[Entries]], …) — real information, but not the
+// user's own data, so they sit behind it.
+.tranquil-debug-panel .debug-row.debug-internal .debug-name {
+  color: @text-color-subtle;
+  font-style: italic;
+}

@@ -1,0 +1,16 @@
+# Scoped to atom-text-editor, NOT atom-workspace, on purpose.
+#
+# tranquil-browser's keyHandler already owns bare F-keys for browser tabs — F12 toggles the
+# guest's DevTools, F5 reloads the page, F10 toggles the URL bar — and Pulsar binds F11 to
+# window:toggle-full-screen on Windows and Linux. A workspace-scoped binding here would fight all
+# of those the moment a browser tab is involved. Editor scope keeps VS Code's muscle memory
+# without taking keys away from anyone else.
+#
+# Caveat worth knowing: on Windows/Linux this does shadow F11 (full screen) while an editor has
+# focus, which is the same trade VS Code makes.
+'atom-text-editor':
+  'f9': 'tranquil-debug:toggle-breakpoint'
+  'f5': 'tranquil-debug:continue'
+  'f10': 'tranquil-debug:step-over'
+  'f11': 'tranquil-debug:step-into'
+  'shift-f11': 'tranquil-debug:step-out'

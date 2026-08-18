@@ -272,3 +272,19 @@ body.tranquil-debug-resizing {
   color: @text-color-subtle;
   font-style: italic;
 }
+
+// Declared below the paused line, so its `undefined` means "not reached yet" rather than
+// "holds nothing" — CDP reports both identically, and the difference matters when you are
+// reading a scope to work out how far execution got. Dimmed rather than hidden: the binding
+// genuinely exists in module scope from instantiation, it just has no value yet.
+.tranquil-debug-panel .debug-row.debug-pending .debug-name,
+.tranquil-debug-panel .debug-row.debug-pending .debug-value {
+  opacity: 0.55;
+}
+
+// Imports are constant for the whole run and sink below the script's own state (see
+// orderModuleScope). Dimming the NAME only keeps them scannable when you do want one, without
+// competing with the variables above them.
+.tranquil-debug-panel .debug-row.debug-imported .debug-name {
+  color: @text-color-subtle;
+}
